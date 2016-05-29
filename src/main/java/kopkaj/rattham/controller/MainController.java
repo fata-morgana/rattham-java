@@ -25,23 +25,39 @@ public class MainController {
 	@ResponseBody
 	@RequestMapping(path="/task", method=RequestMethod.GET)
 	public List<Task> listTask() {
-		return taskManager.readAll();
+		return taskManager.readAllAvailable();
 	}
 	
 	@ResponseBody
-	@RequestMapping(path="/task/{task}", method=RequestMethod.GET)
-	public Task viewTask(@PathVariable String task) {
-		return taskManager.read(Integer.parseInt(task));
+	@RequestMapping(path="/task/{taskNo}", method=RequestMethod.GET)
+	public Task viewTask(@PathVariable Integer taskNo) {
+		return taskManager.read(taskNo);
 	}
 	
 	@RequestMapping(path="/task", method=RequestMethod.POST)
-	public ResponseEntity<?> addTask(@RequestBody TaskInput taskInput) {
-		taskManager.add(new Task(taskInput));
-		return new ResponseEntity<>(HttpStatus.CREATED);
+	public ResponseEntity<Integer> addTask(@RequestBody TaskInput taskInput) {
+		Integer newLine = taskManager.add(new Task(taskInput));
+		return new ResponseEntity<>(newLine, HttpStatus.CREATED);
 	}
 	
-	@RequestMapping(path="/task/{task}", method=RequestMethod.PUT)
-	public ResponseEntity<?> editTask(@PathVariable String task, @RequestBody TaskInput taskInput) {
+	@RequestMapping(path="/task/{taskNo}", method=RequestMethod.PUT)
+	public ResponseEntity<?> editTask(@PathVariable Integer taskNo, @RequestBody TaskInput taskInput) {
+		Task modTask = new Task(taskInput);
+		modTask.setLineNo(taskNo);
+		taskManager.edit(taskNo, modTask);
 		return new ResponseEntity<>(HttpStatus.OK);
+	}
+	
+	@RequestMapping(path="/task/{taskNo}/done", method=RequestMethod.GET)
+	public ResponseEntity<?> moveToDone(@PathVariable Integer taskNo) {
+		taskManager.changeStatusToDone(taskNo);
+		return new ResponseEntity<>(HttpStatus.OK);
+	}
+	
+	@ResponseBody
+	@RequestMapping(path="/task/{taskNo}", method=RequestMethod.DELETE)
+	public ResponseEntity<?> removeTask(@PathVariable Integer taskNo) {
+		taskManager.markInactive(taskNo);
+		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
 }

@@ -10,11 +10,11 @@ import static org.hamcrest.CoreMatchers.equalTo;
 public class TaskTest {
 	@Test
 	public void testEncode() {
-		assertThat("1\\;2\\\\3\\\\\\;", equalTo(Task.encode("1;2\\3\\;")));
+		assertThat("0\\;1\\;2\\\\3\\\\\\;", equalTo(Task.encode("0;1;2\\3\\;")));
 	}
 	@Test
 	public void testDecode() {
-		assertThat("1;2\\3\\;", equalTo(Task.decode("1\\;2\\\\3\\\\\\;")));
+		assertThat("0;1;2\\3\\;", equalTo(Task.decode("0\\;1\\;2\\\\3\\\\\\;")));
 	}
 	@Test(expected=RatthamException.class)
 	public void testDecodeFail() {
@@ -22,9 +22,10 @@ public class TaskTest {
 	}
 	@Test
 	public void testParse() {
-		Task task = new Task("sub\\;con\\;PENDING");
+		Task task = new Task("0\\;sub\\;con\\;PENDING");
+		assertThat(0, equalTo(task.getLineNo()));
 		assertThat("sub", equalTo(task.getSubject()));
 		assertThat("con", equalTo(task.getContent()));
-		assertThat("PENDING", equalTo(task.getTaskStatus()));
+		assertThat(TaskStatus.PENDING, equalTo(task.getTaskStatus()));
 	}
 }

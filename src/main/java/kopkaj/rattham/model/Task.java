@@ -9,11 +9,14 @@ import java.util.stream.IntStream;
 import kopkaj.rattham.exception.RatthamException;
 
 public class Task {
+	private static final String FIELD_SEPARATOR = ";";
+	private Integer lineNo;
 	private final String subject;
 	private final String content;
-	private final TaskStatus taskStatus;
+	private TaskStatus taskStatus;
 	
 	public Task(TaskInput taskInput) {
+		this.lineNo = -1;
 		this.subject = taskInput.getSubject();
 		this.content = taskInput.getContent();
 		this.taskStatus = TaskStatus.PENDING;
@@ -21,13 +24,14 @@ public class Task {
 	}
 	
 	public Task(String line) {
-		String [] decodedFields = decode(line).split(";");
-		if (decodedFields.length < 3) {
+		String [] decodedFields = decode(line).split(FIELD_SEPARATOR);
+		if (decodedFields.length < 4) {
 			throw new RatthamException("Data corrupt, fields were shrink. Original data is " + line);
 		}
-		this.subject = decodedFields[0];
-		this.content = decodedFields[1];
-		this.taskStatus = TaskStatus.parse(decodedFields[2].toUpperCase());
+		this.lineNo = Integer.parseInt(decodedFields[0]);
+		this.subject = decodedFields[1];
+		this.content = decodedFields[2];
+		this.taskStatus = TaskStatus.parse(decodedFields[3].toUpperCase());
 		validateLength();
 	}
 	
@@ -44,6 +48,14 @@ public class Task {
 		}
 	}
 
+	public Integer getLineNo() {
+		return lineNo;
+	}
+
+	public void setLineNo(Integer lineNo) {
+		this.lineNo = lineNo;
+	}
+
 	public String getSubject() {
 		return subject;
 	}
@@ -52,18 +64,22 @@ public class Task {
 		return content;
 	}
 
+	public void setTaskStatus(TaskStatus taskStatus) {
+		this.taskStatus = taskStatus;
+	}
+
 	public TaskStatus getTaskStatus() {
 		return taskStatus;
 	}
 	
 	public String toString() {
-		return encode(subject)+";"+encode(content)+";"+taskStatus.toString();
+		return lineNo+FIELD_SEPARATOR+encode(subject)+FIELD_SEPARATOR+encode(content)+FIELD_SEPARATOR+taskStatus.toString();
 	}
 	
 	public static String encode(String field) {
 		List<String> encodedChar = IntStream.range(0, field.length())
 			.mapToObj(i -> new Character(field.charAt(i)).toString())
-			.map(oneChar -> oneChar.equals(";") ? "\\;" : (oneChar.equals("\\") ? "\\\\" : oneChar))
+			.map(oneChar -> oneChar.equals(FIELD_SEPARATOR) ? "\\;" : (oneChar.equals("\\") ? "\\\\" : oneChar))
 			.collect(Collectors.toList());
 		StringBuilder sb = new StringBuilder();
 		encodedChar.stream().forEach(one -> sb.append(one));
@@ -81,7 +97,7 @@ public class Task {
 				if (testingString.equals("\\\\")) {
 					sb.append("\\");
 				} else if (testingString.equals("\\;")) {
-					sb.append(";");
+					sb.append(FIELD_SEPARATOR);
 				} else {
 					throw new RatthamException("Data corrupt. Original data is " + line);
 				}

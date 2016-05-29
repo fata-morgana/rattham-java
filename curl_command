@@ -1,0 +1,17 @@
+#View all items
+curl -i http://localhost:9999/rattham/task
+
+#View a single task
+curl -i http://localhost:9999/rattham/task/0
+
+#Add a task
+curl -i -H "Content-Type:application/json" -X POST -d '{"subject":"first","content":"first_content"}' http://localhost:9999/rattham/task
+
+#Edit existing task
+curl -i -H "Content-Type:application/json" -X PUT -d '{"subject":"second","content":"second_content"}' http://localhost:9999/rattham/task/1
+
+#Set the task status (Move to done)
+curl -i http://localhost:9999/rattham/task/0/done
+
+#Deleted a task
+curl -i -X DELETE http://localhost:9999/rattham/task/0

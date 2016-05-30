@@ -1,7 +1,7 @@
 # rattham-java
 Task management application implemented using Java, with file-system storage and RESTful webservice. You don't need any database installed, also, we don't provide any UI to communicate with our service.
 
-## Prequisite
+## Prerequisite
 - Java 8 or higher
 - Maven
 
